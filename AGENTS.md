@@ -32,11 +32,15 @@ assess candidate ──► capture golden baseline ──► generate slice task
 2. **Baseline** — for each slice, capture HTTP request/response pairs,
    rendered DOM, and DB state transitions *before* any change. This is what
    makes "decouple" falsifiable.
-3. **Slice tasks** — the assessment lists tiered tasks (Tier 1 anchor →
-   Tier 4 heavy composition root). Task unit = controller method + JSP +
-   its tag files, not "N JSPs".
-4. **Runner** — the slice-decoupling agent executes one slice: RESTify the
-   controller, remove the JSP/tag rendering, keep behavior parity.
+3. **Feature tasks** — the assessment lists tiered, feature-scoped eval
+   tasks (Tier 1 anchor → Tier 4 heavy composition root). The boundary is
+   a **verification scope, not an edit scope**: the agent may modify
+   anything it needs (shared tags, interceptors, other pages); what is
+   bounded is the golden baseline it is graded against. Small samples also
+   get unscoped end-to-end tasks ("decouple the write paths of this app").
+4. **Runner** — the slice-decoupling agent executes one feature boundary:
+   RESTify the controllers, remove the JSP/tag rendering, keep behavior
+   parity. It chooses its own edits; the baseline decides pass/fail.
 5. **Verify** — replay the baseline against the decoupled slice; parity +
    "no server-rendered HTML left for that slice" + build/tests green.
 

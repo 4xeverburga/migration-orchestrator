@@ -16,11 +16,17 @@ description: >
 Decide, with evidence, whether a project is a good sample for the
 JSP-decoupling dataset. The dataset's tasks look like:
 
-- *slice task*: "Decouple the answer flow: `XController` + `xForm.jsp` + `x.tag`"
+- *feature task*: "Decouple the answer flow end to end" (the agent decides
+  which controllers/JSPs/tags to touch — there is **no edit whitelist**)
 - *tag task*: "Extract a shared vote-widget tag into a REST-backed component used by N pages"
 - *planning task*: "Given this tag-usage graph, produce a decoupling order"
+- *end-to-end task* (small samples only): "Decouple the write paths of this app" — the agent
+  inventories, orders, executes, and verifies on its own
 
 A good sample is one where those tasks are **non-trivial but verifiable**.
+The boundary of a task is a **verification scope, not an edit scope**: the
+agent may modify anything it needs (shared tags, interceptors, config,
+other pages); what is bounded is the golden baseline it is graded against.
 
 ## Priorities (read this before scoring)
 
@@ -94,10 +100,10 @@ line numbers where useful) for every score above 0.
 
 ## Verdict scale
 
-- **≥ 75% weighted** → `ACCEPT` — add to dataset; list the top 3–5 slice
+- **≥ 75% weighted** → `ACCEPT` — add to dataset; list the top 3–5 feature
   tasks it enables.
 - **50–74%** → `ACCEPT-WITH-FIXES` — list the concrete setup fixes and the
-  slices that would become available after them.
+  feature tasks that would become available after them.
 - **< 50%** → `REJECT` — say which criterion is unfixable and why.
 
 ## Report format
@@ -122,8 +128,8 @@ line numbers where useful) for every score above 0.
 - Exact fix steps (if any): <numbered list>
 - Runtime requirements: <JDK, DB, ports, env vars>
 
-## Slice tasks this project enables
-1. <controller + jsp + tags, difficulty tier>
+## Feature-scoped eval tasks this project enables
+1. <feature boundary (e.g. "the answer flow"), baseline routes/pages, difficulty tier>
 2. ...
 
 ## Risks / notes
@@ -131,24 +137,32 @@ line numbers where useful) for every score above 0.
 generation (grunt/npm), relative log paths, port conflicts>
 ```
 
-## Difficulty tiers for the slice tasks
+## Difficulty tiers for the feature tasks
 
-When listing slice tasks, tier them so the dataset has spread:
+Tasks are scoped to **natural feature boundaries** (the vote flow, the
+answer flow, the comment flow, a CRUD admin page) — never to a file
+whitelist. The agent is free to touch anything; the tier describes how
+much coordination the boundary demands:
 
 - **Tier 1 (anchor):** controller method already returns JSON or is one
   `forwardTo` away from it (e.g. a vote/comment endpoint).
 - **Tier 2:** simple form page + its controller; no shared tags.
-- **Tier 3:** page composed of reused tag files; change must be coordinated
-  across pages.
+- **Tier 3:** feature whose UI is composed of reused tag files; the agent
+  must *notice* the sharing and coordinate across pages (this is a skill
+  to be measured, not assumed).
 - **Tier 4:** heavy composition root (question-detail-style page) with
   interceptors, caching, and auth branching.
 
-A good sample yields at least one task per tier. If a project only yields
-Tier 1–2, it is a weak sample even if it runs perfectly.
+A good sample yields at least one task per tier, **plus at least one
+unscoped end-to-end task** ("decouple the write paths of this app") on
+small samples — that closes the distribution gap with the final
+whole-app agent, whose hardest skill is choosing boundaries and order
+itself. If a project only yields Tier 1–2, it is a weak sample even if
+it runs perfectly.
 
 ## Teaching cases worth including
 
-When listing slice tasks, actively look for these recurring legacy-JSP
+When listing feature tasks, actively look for these recurring legacy-JSP
 patterns — each teaches a distinct reasoning skill the final agent needs.
 A strong sample contains several of them; note which ones a project has.
 
