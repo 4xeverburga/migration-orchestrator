@@ -57,10 +57,30 @@ result in `.out/<sample>-ready-report.md`.
   empty. Everything machine-specific lives inside the Dockerfile.
 - The sample must build on a machine with only docker + make installed.
 
-### 6. Task spec completeness
-For each task JSON: prompt, tier, baseline reference, success criteria
-(explicitly stating legacy unit tests are out of scope), and the
-verification scope (routes/pages covered by the baseline).
+### 6. Test structure and task spec completeness
+The `bench/` layout must follow the modular convention:
+
+```
+bench/
+├── MANIFEST.sha256
+├── baselines/<sample>/<task>/{http,dom,db}/
+├── db/db_validation.py + db/<test_name>/{spec.json, expected_delta.json}
+├── e2e/e2e_validation.py + e2e/<test_name>/{spec.json, flow.py}
+└── harness/ (shared libs only: normalize.py, state.py, manifest.py)
+```
+
+- Orchestrators (`db_validation.py`, `e2e_validation.py`) are **generic** —
+  identical across samples; they discover test dirs and aggregate
+  verdicts. Never sample-specific code in them.
+- Each test dir is self-contained: `spec.json` (tables/routes, key
+  columns, ignore_columns, task ref, locale) + its fixture/flow.
+- Test dirs named `<task>__<behavior>`; orchestrator must discover and
+  run every dir (run with one test dir temporarily renamed → orchestrator
+  must skip it cleanly and report it as not-run, not crash).
+- DB tests run in isolation: orchestrator resets the DB between tests.
+- For each task JSON: prompt, tier, baseline reference, success criteria
+  (explicitly stating legacy unit tests are out of scope), and the
+  verification scope (routes/pages covered by the baseline).
 
 ### 7. Docs
 - README section for the sample exists (what it is, how to run).
