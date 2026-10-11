@@ -15,6 +15,7 @@ The legacy-app runbooks that used to live here moved to their own projects
 | Path | Purpose |
 |---|---|
 | `.agents/skills/assess-jsp-decoupling-candidate/SKILL.md` | The assessment skill: scores a legacy JSP project as a dataset candidate (rubric, blocker classes, difficulty tiers, teaching cases). **Read it before assessing any project.** |
+| `.agents/skills/dataset-ready-check/SKILL.md` | The release gate: validates a sample's `make setup` / `make eval` work, the pristine self-check passes, tamper detection works, and the environment is deterministic. **Run it before publishing any sample.** |
 | `.out/` | **All generated outputs** (assessment reports, baselines, captured slices). Gitignored — never commit anything here. |
 | `.gitignore` | Ignores `.out/`. |
 
