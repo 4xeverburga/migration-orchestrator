@@ -59,11 +59,12 @@ result in `.out/<sample>-ready-report.md`.
 - **Env convention** (see `authoring-bench-tests` → "E2E self-containment
   & per-sample env"): `environments/<sample>/.env.example` is tracked
   and lists every variable the sample's evals need (admin credentials,
-  ports, URLs); the real `.env` is gitignored. A fresh clone must reach
-  a green eval with only `cp .env.example .env` (or setup auto-generates
-  it) + `make setup` + `make eval`. No credentials hardcoded anywhere
-  under `environments/`, `bench/`, or `tasks/` — grep for the seeded
-  default passwords to confirm.
+  ports, URLs); the sample's `.env` is **tracked too**, holding only
+  synthetic, deterministic bench credentials so a fresh clone reaches a
+  green eval with just `make setup` + `make eval`. Real secrets (OAuth
+  keys, API tokens) must never appear in a tracked `.env` — grep for
+  anything that looks like a live credential to confirm; only the
+  seeded synthetic bench passwords may be present.
 
 ### 6. Test structure and task spec completeness
 The `bench/` layout must follow the modular convention:
