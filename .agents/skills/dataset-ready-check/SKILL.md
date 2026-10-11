@@ -52,19 +52,18 @@ result in `.out/<sample>-ready-report.md`.
 - Relax a comparator (e.g. make parity always-true) → `TAMPERED`.
 - Restore, re-run, confirm green again.
 
-### 5. No absolute paths / no machine coupling / sample independence
+### 5. No absolute paths / no machine coupling
 - `grep -r '/home/\|/usr/lib/jvm' environments/ bench/ tasks/` → must be
   empty. Everything machine-specific lives inside the Dockerfile.
 - The sample must build on a machine with only docker + make installed.
-- **Sample independence** (see `authoring-bench-tests` → "Sample
-  independence"): the sample's compose project name, network, volumes,
-  container names, database, and ports must not collide with or be
-  shared by any other sample. Verify: with every OTHER sample's stack
-  up, `make setup` + `make eval` for THIS sample still pass, and this
-  sample's teardown leaves the other samples' containers untouched
-  (`docker ps` before/after teardown must show no foreign container
-  stopped or removed). Credentials are per-sample — no shared
-  credential file across samples.
+- **Env convention** (see `authoring-bench-tests` → "E2E self-containment
+  & per-sample env"): `environments/<sample>/.env.example` is tracked
+  and lists every variable the sample's evals need (admin credentials,
+  ports, URLs); the real `.env` is gitignored. A fresh clone must reach
+  a green eval with only `cp .env.example .env` (or setup auto-generates
+  it) + `make setup` + `make eval`. No credentials hardcoded anywhere
+  under `environments/`, `bench/`, or `tasks/` — grep for the seeded
+  default passwords to confirm.
 
 ### 6. Test structure and task spec completeness
 The `bench/` layout must follow the modular convention:
