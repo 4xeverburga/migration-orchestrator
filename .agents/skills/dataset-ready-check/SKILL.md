@@ -52,10 +52,19 @@ result in `.out/<sample>-ready-report.md`.
 - Relax a comparator (e.g. make parity always-true) → `TAMPERED`.
 - Restore, re-run, confirm green again.
 
-### 5. No absolute paths / no machine coupling
+### 5. No absolute paths / no machine coupling / sample independence
 - `grep -r '/home/\|/usr/lib/jvm' environments/ bench/ tasks/` → must be
   empty. Everything machine-specific lives inside the Dockerfile.
 - The sample must build on a machine with only docker + make installed.
+- **Sample independence** (see `authoring-bench-tests` → "Sample
+  independence"): the sample's compose project name, network, volumes,
+  container names, database, and ports must not collide with or be
+  shared by any other sample. Verify: with every OTHER sample's stack
+  up, `make setup` + `make eval` for THIS sample still pass, and this
+  sample's teardown leaves the other samples' containers untouched
+  (`docker ps` before/after teardown must show no foreign container
+  stopped or removed). Credentials are per-sample — no shared
+  credential file across samples.
 
 ### 6. Test structure and task spec completeness
 The `bench/` layout must follow the modular convention:

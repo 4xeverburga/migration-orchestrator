@@ -15,6 +15,40 @@ This is the hardest authoring task in the benchmark — a bad test poisons
 every agent score run against it. Follow the conventions exactly; the
 `dataset-ready-check` skill will reject samples that deviate.
 
+## Sample independence (non-negotiable)
+
+Every sample must be fully independent of every other sample. A sample
+is a self-contained universe: nothing it starts, reads, or writes may
+touch another sample's state, and nothing another sample does may break
+it. Concretely:
+
+- **Own stack**: each sample ships its own compose project (own project
+  name, own network, own volumes). Never share a compose file, network,
+  or volume across samples.
+- **Own data**: own database container name, own DB name, own seed data.
+  Two samples must never point at the same database or schema.
+- **Own ports**: allocate a disjoint port range per sample (app, DB,
+  mocks). Document the allocation in the sample's AGENTS.md; the
+  orchestrator keeps the global port map. Port collisions between
+  samples are a release blocker.
+- **Own credentials**: bootstrap/admin credentials are per-sample
+  (gitignored file inside the sample, or seeded in-image). Never source
+  another sample's credential file, and never assume a shared admin
+  password across samples.
+- **Own lifecycle**: `make setup` / teardown of one sample must not
+  start, stop, restart, or reconfigure another sample's containers or
+  the host beyond its own stack (no shared Tomcat, no shared JVM, no
+  `pkill` patterns that could match another sample's processes).
+- **No cross-references**: tests, fixtures, and flows in sample A never
+  reference sample B's URLs, services, or fixtures — even in comments
+  or docs, since docs rot into coupling.
+
+Why this is a hard rule: samples are developed, evaluated, and re-run
+in arbitrary order and sometimes concurrently. Any shared state (port,
+DB, credential, container name) turns one sample's setup or teardown
+into another sample's flaky failure, and flaky samples poison every
+agent score run against them.
+
 ## Directory convention
 
 One test = one directory under `bench/db/` or `bench/e2e/`, named
