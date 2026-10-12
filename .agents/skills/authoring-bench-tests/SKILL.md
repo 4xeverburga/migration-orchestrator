@@ -11,6 +11,13 @@ description: >
 
 # Authoring bench tests (DB + E2E)
 
+**Prerequisite — `prepare-repo-for-dataset`:** before writing any test,
+baseline, or environment for a sample, the repo must already satisfy
+that skill: pristine history protected (tagged + pushed, no rewrites of
+`main`) and the project verified runnable with its legacy toolchain.
+Authoring on an unprepared repo risks invalidating baselines with
+dependency drift or losing the provenance the dataset depends on.
+
 This is the hardest authoring task in the benchmark — a bad test poisons
 every agent score run against it. Follow the conventions exactly; the
 `dataset-ready-check` skill will reject samples that deviate.
